@@ -23,6 +23,8 @@ usage() {
 
   Standard Options:
 
+    -g generate the command and print to the console without executing it
+
     -f read the connection list from a file
        Connections are expected to be listed as host:port, one per line
 
@@ -80,11 +82,12 @@ fi
 # =================================================================================================================
 # Initialization:
 # -----------------------------------------------------------------------------------------------------------------
-while getopts f:n:p:h FLAG; do
+while getopts f:n:p:gh FLAG; do
   case $FLAG in
     f) export listFile=$OPTARG ;;
     n) export FULLY_QUALIFIED_NAMESPACE=$OPTARG ;;
     p) export podName=$OPTARG ;;
+    g) export GENERATE=1 ;;
     h ) usage ;;
     \?) #unrecognized option - show help
       echo -e \\n"Invalid script option"\\n
@@ -126,6 +129,11 @@ for item in ${list}; do
 
   _command+="echo -n ${host}:${port} && timeout ${CONNECTION_TIMEOUT} bash -c \"cat < /dev/null > /dev/tcp/${host}/${port}\" > /dev/null 2>&1 && echo ' - Open' || echo ' - Closed';"
 done
+
+if [ ! -z "${GENERATE}" ]; then
+  echo -e \\n${_command}
+  exit 0
+fi
 
 if [ -z "${runInPod}" ]; then
   echo -e "Testing connections from the local machine ..."
