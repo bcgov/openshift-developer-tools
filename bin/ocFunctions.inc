@@ -1066,7 +1066,7 @@ updateRoutes() {
           # --save-config - Maintains compatibility with 'oc apply'
           #
           # 'oc patch' is used with --dry-run=client it retains any additional route configurations such as certificates.
-          oc -n ${projectName} patch route ${routeName} --dry-run=client -o json -p "${routeConfig}" | oc -n ${projectName} replace --force --save-config -f -
+          oc -n ${projectName} patch route ${routeName} --dry-run=client --type=merge -o json -p "${routeConfig}" | oc -n ${projectName} replace --force --save-config -f -
         else
           echoWarning "Creating ${routeName} ..."
           echo ${routeConfig} | oc -n ${projectName} $(getOcAction) -f -
