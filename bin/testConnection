@@ -52,24 +52,6 @@ function readList(){
   )
 }
 
-# Load openshift-developer-tools functions ...
-_includeFile="ocFunctions.inc"
-if [ ! -z $(type -p ${_includeFile}) ]; then
-  _includeFilePath=$(type -p ${_includeFile})
-  export OCTOOLSBIN=$(dirname ${_includeFilePath})
-
-  if [ -f ${OCTOOLSBIN}/${_includeFile} ]; then
-    . ${OCTOOLSBIN}/${_includeFile}
-  fi
-else
-  _red='\033[0;31m'
-  _yellow='\033[1;33m'
-  _nc='\033[0m' # No Color
-  echo -e \\n"${_red}${_includeFile} could not be found on the path.${_nc}"
-  echo -e "${_yellow}Please ensure the openshift-developer-tools are installed on and registered on your path.${_nc}"
-  echo -e "${_yellow}https://github.com/BCDevOps/openshift-developer-tools${_nc}"
-fi
-
 # Bash on MacOS does not have the timeout function. We'll check the OS and, if it's MacOS (Darwin) based, we will
 # create a timeout function using Perl. Perl function from this gist https://gist.github.com/jaytaylor/6527607.
 OS=$(uname | tr '[:upper:]' '[:lower:]')
@@ -95,6 +77,27 @@ while getopts f:n:p:gh FLAG; do
       ;;
   esac
 done
+
+if [[ -n "${FULLY_QUALIFIED_NAMESPACE}" || -n "${podName}" ]]; then
+  # Load openshift-developer-tools functions ...
+  _includeFile="ocFunctions.inc"
+  if [ ! -z $(type -p ${_includeFile}) ]; then
+    _includeFilePath=$(type -p ${_includeFile})
+    export OCTOOLSBIN=$(dirname ${_includeFilePath})
+
+    if [ -f ${OCTOOLSBIN}/${_includeFile} ]; then
+      . ${OCTOOLSBIN}/${_includeFile}
+    fi
+  else
+    _red='\033[0;31m'
+    _yellow='\033[1;33m'
+    _nc='\033[0m' # No Color
+    echo -e \\n"${_red}${_includeFile} could not be found on the path.${_nc}"
+    echo -e "${_yellow}Please ensure the openshift-developer-tools are installed on and registered on your path.${_nc}"
+    echo -e "${_yellow}https://github.com/BCDevOps/openshift-developer-tools${_nc}"
+  fi
+fi
+
 shift $((OPTIND-1))
 
 if [ ! -z "${listFile}" ]; then
